@@ -17,20 +17,17 @@ HIRE="${HIRE:-$ROOT/team/bin/hire.sh}"
 CHAT="TEAM_DIR='$ROOT/team' python3 -I -u '$ROOT/team/bin/chat.py'; exec bash"
 MAILMAN="TEAM_DIR='$ROOT/team' python3 -I -u '$ROOT/team/bin/mail.py' mailman; exec bash"
 
-# 0) 제품 저장소 확인: project/ 에 별도로 clone 되어 있어야 한다
+# 0) 제품 저장소 준비: project/ 가 없으면 빈 git 저장소로 만든다 (팀은 빈 상태에서 시작)
 if [ ! -d "$ROOT/project/.git" ]; then
-  cat >&2 <<MSG
-[오류] 제품 저장소가 없습니다: $ROOT/project
-
-먼저 제품 저장소를 project/ 에 clone 하세요 (main 브랜치):
-  git clone <제품 저장소 URL> "$ROOT/project"
-
-그다음 다시 실행하세요: ./start-team.sh
-MSG
-  exit 1
+  mkdir -p "$ROOT/project"
+  git -C "$ROOT/project" init -q -b main
+  printf '# 제품\n\n팀이 구현하는 제품 저장소입니다. (start-team.sh가 빈 상태로 만들었습니다)\n' > "$ROOT/project/README.md"
+  git -C "$ROOT/project" add README.md
+  git -C "$ROOT/project" -c user.name="ai-team" -c user.email="ai-team@local" commit -q -m "초기 커밋 (빈 제품 저장소)"
+  echo "[안내] project/ 가 없어서 빈 git 저장소를 만들었습니다. 기존 제품 코드가 있으면 project/ 에 clone 하세요."
 fi
 if ! git -C "$ROOT/project" rev-parse --verify -q main >/dev/null; then
-  echo "[오류] $ROOT/project 에 main 브랜치가 없습니다. 제품 저장소를 확인하세요." >&2
+  echo "[오류] $ROOT/project 에 main 브랜치가 없습니다." >&2
   exit 1
 fi
 command -v tmux >/dev/null || { echo "[오류] tmux가 필요합니다 (예: sudo apt install tmux)" >&2; exit 1; }
