@@ -17,6 +17,25 @@ HIRE="${HIRE:-$ROOT/team/bin/hire.sh}"
 CHAT="TEAM_DIR='$ROOT/team' python3 -I -u '$ROOT/team/bin/chat.py'; exec bash"
 MAILMAN="TEAM_DIR='$ROOT/team' python3 -I -u '$ROOT/team/bin/mail.py' mailman; exec bash"
 
+# 0) 제품 저장소 확인: project/ 에 별도로 clone 되어 있어야 한다
+if [ ! -d "$ROOT/project/.git" ]; then
+  cat >&2 <<MSG
+[오류] 제품 저장소가 없습니다: $ROOT/project
+
+먼저 제품 저장소를 project/ 에 clone 하세요 (main 브랜치):
+  git clone <제품 저장소 URL> "$ROOT/project"
+
+그다음 다시 실행하세요: ./start-team.sh
+MSG
+  exit 1
+fi
+if ! git -C "$ROOT/project" rev-parse --verify -q main >/dev/null; then
+  echo "[오류] $ROOT/project 에 main 브랜치가 없습니다. 제품 저장소를 확인하세요." >&2
+  exit 1
+fi
+command -v tmux >/dev/null || { echo "[오류] tmux가 필요합니다 (예: sudo apt install tmux)" >&2; exit 1; }
+command -v python3 >/dev/null || { echo "[오류] python3가 필요합니다" >&2; exit 1; }
+
 # 1) 대리 worktree 준비 (없을 때만)
 for d in daeri-a daeri-b; do
   if [ ! -d "$ROOT/wt/$d" ]; then
