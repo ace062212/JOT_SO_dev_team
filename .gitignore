@@ -1,0 +1,19 @@
+# 제품 저장소(별도 clone)와 대리 worktree는 올리지 않는다
+project/
+wt/
+node_modules/
+*.log
+*.pane
+# 작업 기록은 올리지 않는다 (폴더 구조만 .gitkeep으로 유지)
+team/tickets/*
+team/meetings/*
+team/reports/*
+team/specs/*
+team/qa/
+team/inbox/
+team/status/
+team/BOARD.md
+!team/tickets/.gitkeep
+!team/meetings/.gitkeep
+!team/reports/.gitkeep
+!team/specs/.gitkeep
